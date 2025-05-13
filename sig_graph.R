@@ -1,0 +1,162 @@
+## DESCRIPTION:
+## MAKES THE TRGRESSION STATISTICAL TEST OF TWO GROUP OF VARIABLES IN A DATAGRAME.
+## THE FIRST VARTIABLE CONTAINS THE RESPONSES THE SECOND CONTAINS THE PRECCTORS IN THE LINEAR REGRESSION ANALYS.
+## THE SIGNIFICAT VALUE THERSH HOLD AND TTHE RSUWARE CAN BE SPECIFIED.
+## USAGE"
+## USE TH MAIN_SIGNIFICANT_NESTED_MAPPED_LM_AND_PLOTS WITH ARGUMENTS:
+## DATASET, PREDICTORS, RESPONSES, SIGNIFICANT THRESHOW, MIN R SQUARED ETC.
+## RETURN OUTPUT:
+## A LIST NAMED:
+
+## significant_analyses_list
+
+## IT ALSO SAVES TO DISK (AS Z.PNG) THE A GRID OF PLOTS CONTAINING THE SCATERPLOTS OF THE SIGNIFICANT ANALUSES.
+## THE 
+
+## regression_main_significant
+
+## FUNCTION RETURNS A LIST WITN FOUR ELEMENTS:
+## A LIST CONTAINING THE PARAMETER OF THE SIGNIFICANT ANALYSES,
+## A MATRIX CONTAININT THE SIGNIFICANT PVALUES FROM THE LM ANALYSES,
+## THE GRID OF PLOTS, AND, THE LIST OF THE INDIVIDUAL SCATER PLOTS.
+
+require('ggplot2')
+require('gridExtra')
+
+compute_lm <- function(dataset, resp_name, pred_name, significance_threshold = 0.05, r_min_threshold = 0.09)
+{
+	list_entry <- paste0(resp_name, '_~_', pred_name)
+	## ADD PAIR TO THE KEEPING TRACK LODGER
+	## CHECK THE INVERTED PAIR HAS NOT BEEN PROCESSED
+	if(any(paste0(pred_name, resp_name) %in% pairs_already_processed) || any(paste0(resp_name, pred_name) %in% pairs_already_processed)) return(NULL)
+	## ADD TO ALREADY PROCESSED KEEPING TRACK LIST
+	pairs_already_processed[[list_entry]] <<- paste0(resp_name, pred_name)
+	## CHECK THAT RESPONSE AND PREDICTOR ARE NOT THE SAME
+	if(resp_name == pred_name) return(NULL)
+	## MAKE SURE VALUES ARE NUMERIC
+	dataset[[resp_name]] <- dataset[[resp_name]] |> as.numeric()
+	dataset[[pred_name]] <- dataset[[pred_name]] |> as.numeric()
+	if(!is.numeric(dataset[[resp_name]]) || any(is.na(dataset[[resp_name]])) || any(is.na(dataset[[pred_name]])) ) return(NULL)
+	## GETTING P-VALUE AND COEFFIECIETS
+	formula <- paste(resp_name, '~', pred_name)
+	lmsummary <- dataset |> lm(formula, data = _, na.action = 'na.exclude') |> summary()
+	lmadjr <- lmsummary[['adj.r.squared']] |> signif(digits = 2)
+	lmr <- lmsummary[['r.squared']] |> signif(digits = 2)
+	lmcoeffs <- lmsummary |> coef()
+	vector_pvalues <- lmcoeffs[-1, 'Pr(>|t|)']
+	min_pvalue <- min(vector_pvalues) |> signif(digits = 2)
+	lmestimates <- lmcoeffs[, 'Estimate']
+	names(lmestimates)[2] <- 'slope'
+	addee_vector <- c('response' = resp_name, 'predictor' = pred_name, 'min_pvalue' = min_pvalue, 'rsqr' = lmr, 'adjr' = lmadjr, lmestimates, vector_pvalues)
+	## CHECH IF IS SIGNIFICAT, THEN ADD TO LISTN AND RETURN PVAL
+	if(!is.na(min_pvalue) && !is.na(lmadjr) && min_pvalue < significance_threshold && lmadjr > r_min_threshold)
+	{
+		print(paste(resp_name, pred_name))
+		print(min_pvalue)
+		print(lmadjr)
+		## ADD ENTRY TO THE SIGNIFICAT RESULTS LIST
+		significant_analyses_list[[list_entry]] <<- addee_vector
+		min_pvalue
+	}
+}
+
+
+mapped_analyze_multiple_nested_significat_lm <- function(dataset, respcols = names(dataset), predcols = names(dataset), significance_threshold = 0.05, r_min_threshold = 0.09)
+{
+	assign('significant_analyses_list', NULL, pos = 1)
+	assign('pairs_already_processed', NULL, pos = 1)
+	results_matrix_lm <- sapply(respcols, \(each_resp) sapply(predcols, \(each_pred) compute_lm(dataset, each_resp, each_pred, significance_threshold = significance_threshold, r_min_threshold = r_min_threshold)))
+	list('significants' = significant_analyses_list, 'pvalues' = results_matrix_lm)
+}
+
+
+
+add_significant_jitter_plots <- function(plotee_dataset, significant_analyses_list = significant_analyses_list, transparency = 0.5)
+{
+	## CHECK IT IS NOT EMPTY LIST
+	if(length(significant_analyses_list) < 1) return(NULL)
+	sapply(significant_analyses_list, function(each_resp_pred)
+       {
+		ggplot(plotee_dataset, aes(!!as.symbol(each_resp_pred['predictor']), !!as.symbol(each_resp_pred['response']))) +
+			geom_jitter(color = '#333366', alpha = transparency) +
+			 #geom_smooth(method = "lm")
+			geom_abline(
+				    slope = as.numeric(each_resp_pred['slope']),
+				    intercept = as.numeric(each_resp_pred['(Intercept)']),
+				    color = '#663333'
+			)
+       }
+	, USE.NAMES = TRUE, simplify = FALSE)
+}
+
+save_grid_plots <- function(plot_list = plot_list, save_graph_to = 'z.png')
+{
+	## CHECK IT IS NOT EMPTY LIST
+	if(length(plot_list) < 1) return(NULL)
+	pgrid <- do.call('grid.arrange', c(plot_list, nrow = round(sqrt(length(plot_list)))))
+	if(any(grepl('\\.(pdf|png|jpg)$', save_graph_to, perl = TRUE))) ggsave(pgrid, file = save_graph_to)
+	pgrid
+}
+
+
+add_significant_conditional_jitter_or_dotplot <- function(plotee_dataset, significant_analyses_list = significant_analyses_list, transparency = 0.5, scatter_cats = FALSE)
+{
+	## CHECK IT IS NOT EMPTY LIST
+	if(length(significant_analyses_list) < 1) return(NULL)
+	sapply(significant_analyses_list, function(each_resp_pred)
+	{
+		predictor_name_or_category <- each_resp_pred[['predictor']]
+		response_name <- each_resp_pred[['response']]
+		predictor_column <- plotee_dataset[[predictor_name_or_category]]
+		slope <- as.numeric(each_resp_pred['slope'])
+		intercept <- as.numeric(each_resp_pred['(Intercept)'])
+		if(scatter_cats || is.numeric(predictor_column))
+		{
+			#print('____NUMERIC_NOT_FACTOR_OR_CHARACTER____')
+			#print(predictor_name_or_category)
+		## OLD JITTER GEOM FUNCTION
+		p <- ggplot(plotee_dataset, aes(!!as.symbol(predictor_name_or_category), !!as.symbol(response_name))) +
+			geom_jitter(color = '#333366', alpha = transparency) +
+			labs(caption = paste0('p=', each_resp_pred[['min_pvalue']], ', R2=', each_resp_pred[['adjr']]))
+			## ADD ERROR BARS OR REGRESSION LINE
+		if(!is.numeric(predictor_column)) p <- p + stat_summary(fun.data = 'mean_se', geom = 'errorbar', width = 0.4) +
+			stat_summary(fun = mean, geom = "point", shape = 5, size = 0.4)
+		else p <- p + geom_abline(slope = slope, intercept = intercept, color = '#663333')
+		return(p)
+		}
+		else
+		{
+			#print('____NOT_NUM_DOTPLOT_FOR_CHAR/FACT___')
+			#print(predictor_name_or_category)
+	       ## NEW DOTPLOT FUNCTION
+		ggplot(plotee_dataset, aes(!!as.symbol(predictor_name_or_category), !!as.symbol(response_name))) +
+			geom_dotplot(aes(color = !!as.symbol(predictor_name_or_category), fill = !!as.symbol(predictor_name_or_category)), binaxis = 'y', binpositions = 'all', stackdir = 'center', dotsize = 0.6, stackratio = 0.7, alpha = transparency, show.legend = FALSE) +
+			geom_boxplot(fill = NA, color = 'grey50', alpha = 0.5, show.legend = FALSE) +
+			## COPYED ROM CATEGORICAL GITHUB
+				stat_summary(fun.data = 'mean_se', geom = 'errorbar', width = 0.4) +
+			    #stat_summary(fun.data = 'mean_se', geom = 'pointrange', alpha = 0.4, color = '#663333') +
+			stat_summary(fun = mean, geom = "point", shape = 5, size = 0.4) +
+			labs(caption = paste0('p=', each_resp_pred[['min_pvalue']], ', R2=', each_resp_pred[['adjr']]))
+		}
+       }, USE.NAMES = TRUE, simplify = FALSE)
+}
+
+
+## MAKE AND SAVE GRID OF GRAPHICS
+grid_from_significants_list_conditional_jitter_dotplot <- function(dataset, significant_analyses_list, transparency = 0.05, save_graph_to = 'z.png', scatter_cats = FALSE)
+{
+	if(is.null(significant_analyses_list)) return(list('grid' = NULL, 'plots' = NULL))
+	## MAKE AND SAVE GRID OF GRAPHICS
+	plot_list <-add_significant_conditional_jitter_or_dotplot(dataset, significant_analyses_list, transparency = transparency, scatter_cats = scatter_cats)
+	pgrid <- save_grid_plots(plot_list, save_graph_to = save_graph_to)
+	list('grid' = pgrid, 'plots' = plot_list)
+}
+
+regression_main_significant <- function(dataset, respcols = names(dataset), predcols = names(dataset), significance_threshold = 0.05, r_min_threshold = 0.09, make_graphics = FALSE, transparency = 0.5, save_graph_to = 'z.png', scatter_cats = FALSE)
+{
+	significants_pvalues_list <- mapped_analyze_multiple_nested_significat_lm(dataset, respcols, predcols, significance_threshold = significance_threshold, r_min_threshold = r_min_threshold)
+	## MAKE AND SAVE GRID OF GRAPHICS
+	if(make_graphics) grid_plots_list <- grid_from_significants_list_conditional_jitter_dotplot(dataset, significant_analyses_list, transparency = transparency, save_graph_to = save_graph_to, scatter_cats = scatter_cats)
+	else grid_plots_list <- list('grid' = NULL, 'plots' = NULL)
+	append(significants_pvalues_list, grid_plots_list)
+}
