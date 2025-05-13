@@ -13,7 +13,7 @@
 ## IT ALSO SAVES TO DISK (AS Z.PNG) THE A GRID OF PLOTS CONTAINING THE SCATERPLOTS OF THE SIGNIFICANT ANALUSES.
 ## THE 
 
-## regression_main_significant
+## regression_significant_main
 
 ## FUNCTION RETURNS A LIST WITN FOUR ELEMENTS:
 ## A LIST CONTAINING THE PARAMETER OF THE SIGNIFICANT ANALYSES,
@@ -152,7 +152,7 @@ grid_from_significants_list_conditional_jitter_dotplot <- function(dataset, sign
 	list('grid' = pgrid, 'plots' = plot_list)
 }
 
-regression_main_significant <- function(dataset, respcols = names(dataset), predcols = names(dataset), significance_threshold = 0.05, r_min_threshold = 0.09, make_graphics = FALSE, transparency = 0.5, save_graph_to = 'z.png', scatter_cats = FALSE)
+regression_significant_main <- function(dataset, respcols = names(dataset), predcols = names(dataset), significance_threshold = 0.05, r_min_threshold = 0.09, make_graphics = FALSE, transparency = 0.5, save_graph_to = 'z.png', scatter_cats = FALSE)
 {
 	significants_pvalues_list <- mapped_analyze_multiple_nested_significat_lm(dataset, respcols, predcols, significance_threshold = significance_threshold, r_min_threshold = r_min_threshold)
 	## MAKE AND SAVE GRID OF GRAPHICS
