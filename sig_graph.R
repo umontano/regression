@@ -119,7 +119,7 @@ add_significant_conditional_jitter_or_dotplot <- function(plotee_dataset, signif
 			geom_jitter(color = '#333366', alpha = transparency) +
 			labs(caption = paste0('p=', each_resp_pred[['min_pvalue']], ', R2=', each_resp_pred[['adjr']]))
 			## ADD ERROR BARS OR REGRESSION LINE
-		if(!is.numeric(predictor_column)) p <- p + stat_summary(fun.data = 'mean_se', geom = 'errorbar', width = 0.4, color = '#663333') +
+		if(!is.numeric(predictor_column)) p <- p + stat_summary(fun.data = 'mean_se', geom = 'errorbar', fun.args = list(mult = 1.96), width = 0.4, color = '#663333') +
 			stat_summary(fun = mean, geom = "point", shape = 5, size = 0.4, color = '#663333')
 		else p <- p + geom_abline(slope = slope, intercept = intercept, color = '#663333')
 		return(p)
@@ -133,7 +133,7 @@ add_significant_conditional_jitter_or_dotplot <- function(plotee_dataset, signif
 			geom_dotplot(aes(color = !!as.symbol(predictor_name_or_category), fill = !!as.symbol(predictor_name_or_category)), binaxis = 'y', binpositions = 'all', stackdir = 'center', dotsize = 0.6, stackratio = 0.7, alpha = transparency, show.legend = FALSE) +
 			geom_boxplot(fill = NA, color = 'grey50', alpha = 0.5, show.legend = FALSE) +
 			## COPYED ROM CATEGORICAL GITHUB
-				stat_summary(fun.data = 'mean_se', geom = 'errorbar', width = 0.4) +
+				stat_summary(fun.data = 'mean_se', geom = 'errorbar', fun.args = list(mult = 1.96), width = 0.4) +
 			    #stat_summary(fun.data = 'mean_se', geom = 'pointrange', alpha = 0.4, color = '#663333') +
 			stat_summary(fun = mean, geom = "point", shape = 5, size = 0.4) +
 			labs(caption = paste0('p=', each_resp_pred[['min_pvalue']], ', R2=', each_resp_pred[['adjr']]))
