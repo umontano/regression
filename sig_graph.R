@@ -133,7 +133,7 @@ add_significant_conditional_jitter_or_dotplot <- function(plotee_dataset, signif
 	       ## NEW DOTPLOT FUNCTION
 		ggplot(plotee_dataset, aes(!!as.symbol(predictor_name_or_category), !!as.symbol(response_name))) +
 			geom_dotplot(aes(color = !!as.symbol(predictor_name_or_category), fill = !!as.symbol(predictor_name_or_category)), binaxis = 'y', binpositions = 'all', stackdir = 'center', dotsize = 0.6, stackratio = 0.7, alpha = transparency, show.legend = FALSE) +
-			geom_boxplot(fill = NA, color = 'grey50', alpha = 0.5, show.legend = FALSE) +
+			geom_boxplot(fill = NA, color = 'grey60', alpha = 0.2, show.legend = FALSE) +
 			## COPYED ROM CATEGORICAL GITHUB
 				stat_summary(fun.data = 'mean_se', geom = 'errorbar', fun.args = list(mult = 1.96), width = 0.4) +
 			    #stat_summary(fun.data = 'mean_se', geom = 'pointrange', alpha = 0.4, color = '#663333') +
