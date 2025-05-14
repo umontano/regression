@@ -66,6 +66,8 @@ mapped_analyze_multiple_nested_significat_lm <- function(dataset, respcols = nam
 	assign('significant_analyses_list', NULL, pos = 1)
 	assign('pairs_already_processed', NULL, pos = 1)
 	results_matrix_lm <- sapply(respcols, \(each_resp) sapply(predcols, \(each_pred) compute_lm(dataset, each_resp, each_pred, significance_threshold = significance_threshold, r_min_threshold = r_min_threshold)))
+	print('NUMBER OF SIGNIFICANT ANALYSES:')
+	print(length(significant_analyses_list))
 	list('significants' = significant_analyses_list, 'pvalues' = results_matrix_lm)
 }
 
@@ -149,6 +151,8 @@ grid_from_significants_list_conditional_jitter_dotplot <- function(dataset, sign
 	## MAKE AND SAVE GRID OF GRAPHICS
 	plot_list <-add_significant_conditional_jitter_or_dotplot(dataset, significant_analyses_list, transparency = transparency, scatter_cats = scatter_cats)
 	pgrid <- save_grid_plots(plot_list, save_graph_to = save_graph_to)
+	print('NUMBER OF GRAPHICS IN GRID:')
+	print(length(plot_list))
 	list('grid' = pgrid, 'plots' = plot_list)
 }
 
