@@ -72,14 +72,14 @@ mapped_analyze_multiple_nested_significat_lm <- function(dataset, respcols = nam
 
 
 
-add_significant_jitter_plots <- function(plotee_dataset, significant_analyses_list = significant_analyses_list, transparency = 0.5)
+add_significant_jitter_plots <- function(plotee_dataset, significant_analyses_list = significant_analyses_list, opacity = 0.5)
 {
 	## CHECK IT IS NOT EMPTY LIST
 	if(length(significant_analyses_list) < 1) return(NULL)
 	sapply(significant_analyses_list, function(each_resp_pred)
        {
 		ggplot(plotee_dataset, aes(!!as.symbol(each_resp_pred['predictor']), !!as.symbol(each_resp_pred['response']))) +
-			geom_jitter(color = '#333366', alpha = transparency) +
+			geom_jitter(color = '#333366', alpha = opacity) +
 			 #geom_smooth(method = "lm")
 			geom_abline(
 				    slope = as.numeric(each_resp_pred['slope']),
@@ -100,7 +100,7 @@ save_grid_plots <- function(plot_list = plot_list, save_graph_to = 'z.png')
 }
 
 
-add_significant_conditional_jitter_or_dotplot <- function(plotee_dataset, significant_analyses_list = significant_analyses_list, transparency = 0.5, scatter_cats = FALSE)
+add_significant_conditional_jitter_or_dotplot <- function(plotee_dataset, significant_analyses_list = significant_analyses_list, opacity = 0.5, scatter_cats = FALSE)
 {
 	## CHECK IT IS NOT EMPTY LIST
 	if(length(significant_analyses_list) < 1) return(NULL)
@@ -117,7 +117,7 @@ add_significant_conditional_jitter_or_dotplot <- function(plotee_dataset, signif
 			#print(predictor_name_or_category)
 		## OLD JITTER GEOM FUNCTION
 		p <- ggplot(plotee_dataset, aes(!!as.symbol(predictor_name_or_category), !!as.symbol(response_name))) +
-			geom_jitter(color = '#333366', alpha = transparency) +
+			geom_jitter(color = '#333366', alpha = opacity) +
 			labs(caption = paste0('p=', each_resp_pred[['min_pvalue']], ', R2=', each_resp_pred[['adjr']]))
 			## ADD ERROR BARS OR REGRESSION LINE
 		if(!is.numeric(predictor_column)) p <- p + stat_summary(fun.data = 'mean_se', geom = 'errorbar', fun.args = list(mult = 1.96), width = 0.4, color = '#663333') +
@@ -131,7 +131,7 @@ add_significant_conditional_jitter_or_dotplot <- function(plotee_dataset, signif
 			#print(predictor_name_or_category)
 	       ## NEW DOTPLOT FUNCTION
 		ggplot(plotee_dataset, aes(!!as.symbol(predictor_name_or_category), !!as.symbol(response_name))) +
-			geom_dotplot(aes(color = !!as.symbol(predictor_name_or_category), fill = !!as.symbol(predictor_name_or_category)), binaxis = 'y', binpositions = 'all', stackdir = 'center', dotsize = 0.6, stackratio = 0.7, alpha = transparency, show.legend = FALSE) +
+			geom_dotplot(aes(color = !!as.symbol(predictor_name_or_category), fill = !!as.symbol(predictor_name_or_category)), binaxis = 'y', binpositions = 'all', stackdir = 'center', dotsize = 0.6, stackratio = 0.7, alpha = opacity, show.legend = FALSE) +
 			geom_boxplot(fill = NA, color = 'grey60', alpha = 0.2, show.legend = FALSE) +
 			## COPYED ROM CATEGORICAL GITHUB
 				stat_summary(fun.data = 'mean_se', geom = 'errorbar', fun.args = list(mult = 1.96), width = 0.4) +
@@ -144,22 +144,22 @@ add_significant_conditional_jitter_or_dotplot <- function(plotee_dataset, signif
 
 
 ## MAKE AND SAVE GRID OF GRAPHICS
-grid_from_significants_list_conditional_jitter_dotplot <- function(dataset, significant_analyses_list, transparency = 0.05, save_graph_to = 'z.png', scatter_cats = FALSE)
+grid_from_significants_list_conditional_jitter_dotplot <- function(dataset, significant_analyses_list, opacity = 0.05, save_graph_to = 'z.png', scatter_cats = FALSE)
 {
 	if(is.null(significant_analyses_list)) return(list('grid' = NULL, 'plots' = NULL))
 	## MAKE AND SAVE GRID OF GRAPHICS
-	plot_list <-add_significant_conditional_jitter_or_dotplot(dataset, significant_analyses_list, transparency = transparency, scatter_cats = scatter_cats)
+	plot_list <-add_significant_conditional_jitter_or_dotplot(dataset, significant_analyses_list, opacity = opacity, scatter_cats = scatter_cats)
 	pgrid <- save_grid_plots(plot_list, save_graph_to = save_graph_to)
 	print('NUMBER OF GRAPHICS IN GRID:')
 	print(length(plot_list))
 	list('grid' = pgrid, 'plots' = plot_list)
 }
 
-regression_significant_main <- function(dataset, respcols = names(dataset), predcols = names(dataset), significance_threshold = 0.05, r_min_threshold = 0.09, make_graphics = FALSE, transparency = 0.5, save_graph_to = 'z.png', scatter_cats = FALSE)
+regression_significant_main <- function(dataset, respcols = names(dataset), predcols = names(dataset), significance_threshold = 0.05, r_min_threshold = 0.09, make_graphics = FALSE, opacity = 0.5, save_graph_to = 'z.png', scatter_cats = FALSE)
 {
 	significants_pvalues_list <- mapped_analyze_multiple_nested_significat_lm(dataset, respcols, predcols, significance_threshold = significance_threshold, r_min_threshold = r_min_threshold)
 	## MAKE AND SAVE GRID OF GRAPHICS
-	if(make_graphics) grid_plots_list <- grid_from_significants_list_conditional_jitter_dotplot(dataset, significant_analyses_list, transparency = transparency, save_graph_to = save_graph_to, scatter_cats = scatter_cats)
+	if(make_graphics) grid_plots_list <- grid_from_significants_list_conditional_jitter_dotplot(dataset, significant_analyses_list, opacity = opacity, save_graph_to = save_graph_to, scatter_cats = scatter_cats)
 	else grid_plots_list <- list('grid' = NULL, 'plots' = NULL)
 	append(significants_pvalues_list, grid_plots_list)
 }
