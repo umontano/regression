@@ -30,12 +30,11 @@ compute_lm <- function(dataset, resp_name, pred_name, significance_threshold = 0
 	## CHECK THE INVERTED PAIR HAS NOT BEEN PROCESSED
 	if(any(paste0(pred_name, resp_name) %in% pairs_already_processed) || any(paste0(resp_name, pred_name) %in% pairs_already_processed)) return(NULL)
 	## ADD TO ALREADY PROCESSED KEEPING TRACK LIST
-	pairs_already_processed[[list_entry]] <<- paste0(resp_name, pred_name)
+	## NOTE THAT IF THE REGRESSION-RESPONSE VARIABLE IS FACTOR, THE PAIR SHOUL NOT BE ADDED, SINCE THE REVERSED ANALYSIS STILL MUST BE DONE
+	if(!is.numeric(dataset[[resp_name]])) pairs_already_processed[[list_entry]] <<- paste0(resp_name, pred_name)
 	## CHECK THAT RESPONSE AND PREDICTOR ARE NOT THE SAME
 	if(resp_name == pred_name) return(NULL)
-	## MAKE SURE VALUES ARE NUMERIC
-	dataset[[resp_name]] <- dataset[[resp_name]] |> as.numeric()
-	dataset[[pred_name]] <- dataset[[pred_name]] |> as.numeric()
+	## RESPONSE VARIABLE IS NUMERIC AND NOT NA
 	if(!is.numeric(dataset[[resp_name]]) || any(is.na(dataset[[resp_name]])) || any(is.na(dataset[[pred_name]])) ) return(NULL)
 	## GETTING P-VALUE AND COEFFIECIETS
 	formula <- paste(resp_name, '~', pred_name)
