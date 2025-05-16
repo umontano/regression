@@ -20,8 +20,14 @@
 ## A MATRIX CONTAININT THE SIGNIFICANT PVALUES FROM THE LM ANALYSES,
 ## THE GRID OF PLOTS, AND, THE LIST OF THE INDIVIDUAL SCATER PLOTS.
 
-require('ggplot2')
-require('gridExtra')
+## INSTALL LIBRARIES IF NOT INSTALLED, AND LOAD THEM
+packages <- c(
+'ggplot2',
+'gridExtra'
+)
+lapply(packages, \(x) if (!require(x, character.only = TRUE)) { install.packages(x)
+	library(x, character.only = TRUE) })
+
 
 compute_lm <- function(dataset, resp_name, pred_name, significance_threshold = 0.05, r_min_threshold = 0.09)
 {
