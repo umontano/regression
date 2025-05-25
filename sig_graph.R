@@ -167,7 +167,9 @@ add_significant_conditional_jitter_or_dotplot <- function(plotee_dataset, signif
 			geom_dotplot(aes(color = cat_reordered, fill = cat_reordered), binaxis = 'y', binpositions = 'all', stackdir = 'center', dotsize = 0.6, stackratio = 0.95, position = position_jitter(width = 0.00, height = 0.05), alpha = opacity, show.legend = FALSE) +
 			##  USE GGBEESWARM QUASIRANDOM INSTEAD OF DOTPLT
 			#ggbeeswarm::geom_quasirandom(aes(color = cat_reordered, fill = cat_reordered), alpha = opacity, show.legend = FALSE) +
-			geom_boxplot(fill = NA, color = 'grey60', alpha = 0.2, show.legend = FALSE) +
+			## USE COLORED BOXPOLTS
+			#geom_boxplot(fill = NA, color = 'grey60', alpha = 0.2, show.legend = FALSE) +
+			geom_boxplot(aes(color = cat_reordered), fill = NA, alpha = opacity, show.legend = FALSE) +
 			## COPYED ROM CATEGORICAL GITHUB
 			stat_summary(fun.data = 'mean_se', geom = 'errorbar', fun.args = list(mult = 1.96), width = 0.4) +
 			#stat_summary(fun.data = 'mean_se', geom = 'pointrange', alpha = 0.4, color = '#663333') +
