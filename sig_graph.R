@@ -121,7 +121,7 @@ save_grid_plots <- function(plot_list = plot_list, save_graph_to = 'z.png')
 	#pgrid <- marrangeGrob(plot_list, ncol = 4, nrow = ifelse(nump > 3, 4, 1 + floor(nump / 4)))
 	if(nump < 17) pgrid <- do.call('grid.arrange', c(plot_list, nrow = round(sqrt(nump))))
 	else pgrid <- marrangeGrob(plot_list, ncol = 4, nrow = 4)
-	if(length(pgrid) > 0 && any(grepl('\\.(pdf|png|jpg)$', save_graph_to))) ggsave(pgrid, file = save_graph_to)
+	if(length(pgrid) > 0 && any(grepl('\\.(pdf|html|png|jpg)$', save_graph_to))) ggsave(pgrid, file = save_graph_to)
 	pgrid
 }
 
@@ -147,7 +147,7 @@ add_significant_conditional_jitter_or_dotplot <- function(plotee_dataset, signif
 			labs(x = predictor_name_or_category, y = response_name, caption = paste0('p=', each_resp_pred[['min_pvalue']], ', R2=', each_resp_pred[['adjr']]))
 			## ADD ERROR BARS OR REGRESSION LINE
 		if(!is.numeric(predictor_column)) p <- p + stat_summary(fun.data = 'mean_se', geom = 'errorbar', fun.args = list(mult = 1.96), width = 0.4, color = '#663333') +
-			stat_summary(fun = mean, geom = "point", shape = 5, size = 0.4, color = '#663333')
+			stat_summary(fun = mean, geom = "point", shape = 5, size = 1.0, color = '#663333')
 		else p <- p + geom_abline(slope = slope, intercept = intercept, color = '#663333')
 		return(p)
 		}
@@ -173,7 +173,7 @@ add_significant_conditional_jitter_or_dotplot <- function(plotee_dataset, signif
 			## COPYED ROM CATEGORICAL GITHUB
 			stat_summary(fun.data = 'mean_se', geom = 'errorbar', fun.args = list(mult = 1.96), width = 0.4) +
 			#stat_summary(fun.data = 'mean_se', geom = 'pointrange', alpha = 0.4, color = '#663333') +
-			stat_summary(fun = mean, geom = "point", shape = 5, size = 0.4) +
+			stat_summary(fun = mean, geom = "point", shape = 5, size = 1.0) +
 			## REORDER_WITIN SECOND COMPONENT
 			scale_x_reordered() +
 			labs(x = predictor_name_or_category, y = response_name, caption = paste0('p=', each_resp_pred[['min_pvalue']], ', R2=', each_resp_pred[['adjr']]))
