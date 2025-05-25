@@ -73,8 +73,8 @@ compute_lm <- function(dataset, resp_name, pred_name, significance_threshold = 0
 	if(!is.na(min_pvalue) && !is.na(lmadjr) && min_pvalue < significance_threshold && lmadjr > r_min_threshold)
 	{
 		print(paste(resp_name, pred_name))
-		print(min_pvalue)
-		print(lmadjr)
+		cat('pv= ', min_pvalue, '\n', sep='')
+		cat('R2= ', lmadjr, '\n', sep='')
 		## ADD ENTRY TO THE SIGNIFICAT RESULTS LIST
 		significant_analyses_list[[list_entry]] <<- addee_vector
 		min_pvalue
