@@ -120,7 +120,7 @@ save_grid_plots <- function(plot_list = plot_list, save_graph_to = 'z.png')
 	#pgrid <- do.call('grid.arrange', c(plot_list, nrow = round(sqrt(nump))))
 	#pgrid <- marrangeGrob(plot_list, ncol = 4, nrow = ifelse(nump > 3, 4, 1 + floor(nump / 4)))
 	if(nump < 17) pgrid <- do.call('grid.arrange', c(plot_list, nrow = round(sqrt(nump))))
-	else pgrid <- marrangeGrob(plot_list, ncol = 4, nrow = 4)
+	else pgrid <- marrangeGrob(plot_list, ncol = 4, nrow = 4, layout_matrix = matrix(1:16, 4, 4, byrow = TRUE) )
 	if(length(pgrid) > 0 && any(grepl('\\.(pdf|png|jpg)$', save_graph_to))) ggsave(pgrid, file = save_graph_to)
 	pgrid
 }
