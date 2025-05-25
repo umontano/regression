@@ -163,7 +163,7 @@ add_significant_conditional_jitter_or_dotplot <- function(plotee_dataset, signif
 #scale_x_reordered(..., labels = reorder_func, sep = deprecated())
 		ggplot(aes(cat_reordered, differencee_response)) +
 			## NEW DOTPLOT FUNCTION
-			geom_dotplot(aes(color = cat_reordered, fill = cat_reordered), binaxis = 'y', binpositions = 'all', stackdir = 'center', dotsize = 0.6, stackratio = 0.95, position = position_jitter(width = 0.00, height = 0.05), alpha = opacity, show.legend = FALSE) +
+			geom_dotplot(aes(color = cat_reordered, fill = cat_reordered), binaxis = 'y', binpositions = 'all', stackdir = 'center', dotsize = 0.6, stackratio = 1.00, position = position_jitter(width = 0.00, height = 0.04), alpha = opacity, show.legend = FALSE) +
 			##  USE GGBEESWARM QUASIRANDOM INSTEAD OF DOTPLT
 			#ggbeeswarm::geom_quasirandom(aes(color = cat_reordered, fill = cat_reordered), alpha = opacity, show.legend = FALSE) +
 			## USE COLORED BOXPOLTS
