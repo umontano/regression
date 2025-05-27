@@ -65,7 +65,7 @@ compute_lm <- function(dataset, resp_name, pred_name, significance_threshold = 0
 	lmr <- lmsummary[['r.squared']] |> signif(digits = 2)
 	lmcoeffs <- lmsummary |> coef()
 	vector_pvalues <- lmcoeffs[-1, 'Pr(>|t|)']
-	min_pvalue <- min(vector_pvalues) |> signif(digits = 2)
+	min_pvalue <- min(vector_pvalues) |> signif(digits = 1)
 	lmestimates <- lmcoeffs[, 'Estimate']
 	names(lmestimates)[2] <- 'slope'
 	addee_vector <- c('response' = resp_name, 'predictor' = pred_name, 'min_pvalue' = min_pvalue, 'rsqr' = lmr, 'adjr' = lmadjr, lmestimates, vector_pvalues)
