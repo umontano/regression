@@ -111,7 +111,20 @@ add_significant_jitter_plots <- function(plotee_dataset, significant_analyses_li
 	, USE.NAMES = TRUE, simplify = FALSE)
 }
 
-save_grid_plots <- function(plot_list = plot_list, save_graph_to = 'z.png')
+write_graphics_using_device_png_or_pdf <- function(writee_pgrid, save_graph_to = 'z.png')
+{
+	## SAVE TO PDF
+	if(grepl('\\.pdf$', save_graph_to)) pdf(save_graph_to, width = 7, height = 7, bg = 'white')
+	## SAVE TO PNG
+	if(grepl('\\.png$', save_graph_to)) png(save_graph_to, width = 480, height = 480, bg = 'white')
+	## SAVE TO JPEG
+	if(grepl('\\.jpeg$', save_graph_to)) jpeg(save_graph_to, width = 480, height = 480, bg = 'white')
+	print(writee_pgrid)
+	dev.off()
+}
+
+						   
+compute_and_save_grid_plots <- function(plot_list = plot_list, save_graph_to = 'z.png')
 {
 	## CHECK IT IS NOT EMPTY LIST
 	nump <- length(plot_list)
@@ -120,7 +133,6 @@ save_grid_plots <- function(plot_list = plot_list, save_graph_to = 'z.png')
 	#pgrid <- marrangeGrob(plot_list, ncol = 4, nrow = ifelse(nump > 3, 4, 1 + floor(nump / 4)))
 	if(nump < 17) pgrid <- do.call('grid.arrange', c(plot_list, nrow = round(sqrt(nump))))
 	else pgrid <- marrangeGrob(plot_list, ncol = 4, nrow = 4, layout_matrix = matrix(1:16, 4, 4, byrow = TRUE) )
-	if(length(pgrid) > 0 && any(grepl('\\.(pdf|png|jpg)$', save_graph_to))) ggsave(pgrid, file = save_graph_to)
 	pgrid
 }
 
@@ -187,7 +199,7 @@ grid_from_significants_list_conditional_jitter_dotplot <- function(dataset, sign
 	if(is.null(significant_analyses_list)) return(list('grid' = NULL, 'plots' = NULL))
 	## MAKE AND SAVE GRID OF GRAPHICS
 	plot_list <-add_significant_conditional_jitter_or_dotplot(dataset, significant_analyses_list, opacity = opacity, scatter_cats = scatter_cats)
-	pgrid <- save_grid_plots(plot_list, save_graph_to = save_graph_to)
+	pgrid <- compute_and_save_grid_plots(plot_list, save_graph_to = save_graph_to)
 	print('NUMBER OF GRAPHICS IN GRID:')
 	print(length(plot_list))
 	list('grid' = pgrid, 'plots' = plot_list)
@@ -199,5 +211,7 @@ regression_significant_main <- function(dataset, respcols = names(dataset), pred
 	## MAKE AND SAVE GRID OF GRAPHICS
 	if(make_graphics) grid_plots_list <- grid_from_significants_list_conditional_jitter_dotplot(dataset, significant_analyses_list, opacity = opacity, save_graph_to = save_graph_to, scatter_cats = scatter_cats)
 	else grid_plots_list <- list('grid' = NULL, 'plots' = NULL)
+	## WRITE GRPAPHIC TO DISK
+	if(length(grid_plots_list[['grid']]) > 0 && any(grepl('\\.(pdf|png|jpeg)$', save_graph_to))) ggsave(grid_plots_list[['grid']], file = save_graph_to)
 	append(significants_pvalues_list, grid_plots_list)
 }
