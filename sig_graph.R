@@ -213,11 +213,12 @@ grid_from_significants_list_conditional_jitter_dotplot <- function(dataset, sign
 show_pars <- function(showee_significant_analyses_summary_list, showee_names = names(showee_significant_analyses_summary_list))
 {
 	summary_parameters_list <- showee_significant_analyses_summary_list[['pr2']]
-	invisible(lapply(names(summary_parameters_list), \(each_name)
+	## ORDERING LIST BY R2 VALUES
+	rordered <- summary_parameters_list |> sapply(\(x) x[2]) |> order(decreasing = TRUE)
+	invisible(lapply(names(summary_parameters_list)[rordered], \(each_name)
 	 {
 	 parameter_pair <- summary_parameters_list[[each_name]]
-	 print(each_name)
-	 cat('pv= ', parameter_pair[1], '\n', 'R2= ', parameter_pair[2], '\n', sep = '')
+	 cat(each_name, '\n', 'pv= ', parameter_pair[1], '\n', 'R2= ', parameter_pair[2], '\n', sep = '')
 	 }))
 	cat('TOTAL NUMBER OF SIGNIFICANT ANALISES: ', length(summary_parameters_list), '\n', sep = '')
 }
