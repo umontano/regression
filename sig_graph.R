@@ -22,6 +22,7 @@
 
 ## INSTALL LIBRARIES IF NOT INSTALLED, AND LOAD THEM
 packages <- c(
+'grid',
 'ggplot2',
 'gridExtra',
 'ggthemes',
@@ -72,6 +73,7 @@ compute_lm <- function(dataset, resp_name, pred_name, significance_threshold = 0
 	## CHECH IF IS SIGNIFICAT, THEN ADD TO LISTN AND RETURN PVAL
 	if(!is.na(min_pvalue) && !is.na(lmadjr) && min_pvalue < significance_threshold && lmadjr > r_min_threshold)
 	{
+		significant_pvalues_r2_list[[paste(resp_name, pred_name)]] <<- c('pv' = min_pvalue, 'R2' = lmadjr)
 		print(paste(resp_name, pred_name))
 		cat('pv= ', min_pvalue, '\n', 'R2= ', lmadjr, '\n', sep='')
 		## ADD ENTRY TO THE SIGNIFICAT RESULTS LIST
@@ -85,10 +87,11 @@ mapped_analyze_multiple_nested_significat_lm <- function(dataset, respcols = nam
 {
 	assign('significant_analyses_list', NULL, pos = 1)
 	assign('pairs_already_processed', NULL, pos = 1)
+	assign('significant_pvalues_r2_list', NULL, pos = 1)
 	results_matrix_lm <- sapply(respcols, \(each_resp) sapply(predcols, \(each_pred) compute_lm(dataset, each_resp, each_pred, significance_threshold = significance_threshold, r_min_threshold = r_min_threshold)))
 	print('NUMBER OF SIGNIFICANT ANALYSES:')
 	print(length(significant_analyses_list))
-	list('significants' = significant_analyses_list, 'pvalues' = results_matrix_lm)
+	list('pr2' = significant_pvalues_r2_list, 'summpar' = significant_analyses_list, 'pvalues' = results_matrix_lm)
 }
 
 
@@ -119,7 +122,7 @@ write_graphics_using_device_png_or_pdf <- function(writee_pgrid, save_graph_to =
 	if(grepl('\\.png$', save_graph_to)) png(save_graph_to, width = 480, height = 480, bg = 'white')
 	## SAVE TO JPEG
 	if(grepl('\\.jpeg$', save_graph_to)) jpeg(save_graph_to, width = 480, height = 480, bg = 'white')
-	print(writee_pgrid)
+	grid.draw(writee_pgrid)
 	dev.off()
 }
 
@@ -205,6 +208,21 @@ grid_from_significants_list_conditional_jitter_dotplot <- function(dataset, sign
 	list('grid' = pgrid, 'plots' = plot_list)
 }
 
+
+## FUNCTION TO BE STORED AND WHEN CALLED SHOWS THE SUMMARY PARAMETERS
+show_pars <- function(showee_significant_analyses_summary_list, showee_names = names(showee_significant_analyses_summary_list))
+{
+	summary_parameters_list <- showee_significant_analyses_summary_list[['pr2']]
+	invisible(lapply(names(summary_parameters_list), \(each_name)
+	 {
+	 parameter_pair <- summary_parameters_list[[each_name]]
+	 print(each_name)
+	 cat('pv= ', parameter_pair[1], '\n', 'R2= ', parameter_pair[2], '\n', sep = '')
+	 }))
+	cat('TOTAL NUMBER OF SIGNIFICANT ANALISES: ', length(summary_parameters_list), '\n', sep = '')
+}
+
+
 regression_significant_main <- function(dataset, respcols = names(dataset), predcols = names(dataset), significance_threshold = 0.05, r_min_threshold = 0.09, make_graphics = FALSE, opacity = 0.5, save_graph_to = 'z.png', scatter_cats = FALSE)
 {
 	significants_pvalues_list <- mapped_analyze_multiple_nested_significat_lm(dataset, respcols, predcols, significance_threshold = significance_threshold, r_min_threshold = r_min_threshold)
@@ -212,6 +230,6 @@ regression_significant_main <- function(dataset, respcols = names(dataset), pred
 	if(make_graphics) grid_plots_list <- grid_from_significants_list_conditional_jitter_dotplot(dataset, significant_analyses_list, opacity = opacity, save_graph_to = save_graph_to, scatter_cats = scatter_cats)
 	else grid_plots_list <- list('grid' = NULL, 'plots' = NULL)
 	## WRITE GRPAPHIC TO DISK
-	if(length(grid_plots_list[['grid']]) > 0 && any(grepl('\\.(pdf|png|jpeg)$', save_graph_to))) ggsave(grid_plots_list[['grid']], file = save_graph_to)
+	if(length(grid_plots_list[['grid']]) > 0 && any(grepl('\\.(pdf|png|jpeg)$', save_graph_to))) write_graphics_using_device_png_or_pdf(grid_plots_list[['grid']], save_graph_to = save_graph_to) #ggsave(grid_plots_list[['grid']], file = save_graph_to)
 	append(significants_pvalues_list, grid_plots_list)
 }
