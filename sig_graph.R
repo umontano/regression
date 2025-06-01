@@ -83,12 +83,14 @@ compute_lm <- function(dataset, resp_name, pred_name, significance_threshold = 0
 }
 
 
-mapped_analyze_multiple_nested_significat_lm <- function(dataset, respcols = names(dataset), predcols = names(dataset), significance_threshold = 0.05, r_min_threshold = 0.09)
+mapped_analyze_multiple_nested_significat_lm <- function(dataset, respcols = names(dataset), predcols = names(dataset), significance_threshold = 0.05, r_min_threshold = 0.09, decreasing = TRUE)
 {
 	assign('significant_analyses_list', NULL, pos = 1)
 	assign('pairs_already_processed', NULL, pos = 1)
 	assign('significant_pvalues_r2_list', NULL, pos = 1)
 	results_matrix_lm <- sapply(respcols, \(each_resp) sapply(predcols, \(each_pred) compute_lm(dataset, each_resp, each_pred, significance_threshold = significance_threshold, r_min_threshold = r_min_threshold)))
+	## ORDER DECREASIN SIGNIFICANT ANALYSES LIST
+	significant_analyses_list[] <<- significant_analyses_list[names(significant_analyses_list)[sapply(names(significant_analyses_list), \(each_signame) significant_analyses_list[[each_signame]][['adjr']]) |> as.numeric() |> order(decreasing = decreasing)] ]
 	print('NUMBER OF SIGNIFICANT ANALYSES:')
 	print(length(significant_analyses_list))
 	list('pr2' = significant_pvalues_r2_list, 'summpar' = significant_analyses_list, 'pvalues' = results_matrix_lm)
@@ -224,9 +226,9 @@ show_pars <- function(showee_significant_analyses_summary_list, showee_names = n
 }
 
 
-regression_significant_main <- function(dataset, respcols = names(dataset), predcols = names(dataset), significance_threshold = 0.05, r_min_threshold = 0.09, make_graphics = FALSE, opacity = 0.5, save_graph_to = 'z.png', scatter_cats = FALSE)
+regression_significant_main <- function(dataset, respcols = names(dataset), predcols = names(dataset), significance_threshold = 0.05, r_min_threshold = 0.09, make_graphics = FALSE, opacity = 0.5, save_graph_to = 'z.png', scatter_cats = FALSE, decreasing = TRUE)
 {
-	significants_pvalues_list <- mapped_analyze_multiple_nested_significat_lm(dataset, respcols, predcols, significance_threshold = significance_threshold, r_min_threshold = r_min_threshold)
+	significants_pvalues_list <- mapped_analyze_multiple_nested_significat_lm(dataset, respcols, predcols, significance_threshold = significance_threshold, r_min_threshold = r_min_threshold, decreasing = decreasing)
 	## MAKE AND SAVE GRID OF GRAPHICS
 	if(make_graphics) grid_plots_list <- grid_from_significants_list_conditional_jitter_dotplot(dataset, significant_analyses_list, opacity = opacity, save_graph_to = save_graph_to, scatter_cats = scatter_cats)
 	else grid_plots_list <- list('grid' = NULL, 'plots' = NULL)
