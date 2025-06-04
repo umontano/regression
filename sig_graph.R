@@ -212,7 +212,7 @@ grid_from_significants_list_conditional_jitter_dotplot <- function(dataset, sign
 
 
 ## FUNCTION TO BE STORED AND WHEN CALLED SHOWS THE SUMMARY PARAMETERS
-show_pars <- function(showee_significant_analyses_summary_list, showee_names = names(showee_significant_analyses_summary_list), decreasing = TRUE)
+show_pars <- function(showee_significant_analyses_summary_list, decreasing = FALSE)
 {
 	summary_parameters_list <- showee_significant_analyses_summary_list[['pr2']]
 	## ORDERING LIST BY R2 VALUES
