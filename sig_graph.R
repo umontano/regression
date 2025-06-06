@@ -59,6 +59,8 @@ compute_lm <- function(dataset, resp_name, pred_name, significance_threshold = 0
 	if(resp_name == pred_name) return(NULL)
 	## RESPONSE VARIABLE IS NUMERIC AND NOT NA
 	if(!is.numeric(dataset[[resp_name]])) return(NULL)
+	## CHECKING THAT THERE IS ENOUGH DIFFERENT LEVELS OR VARIANCE
+	if(length(unique(dataset[[pred_name]])) < 2) return(NULL)
 	## GETTING P-VALUE AND COEFFIECIETS
 	formula <- paste(resp_name, '~', pred_name)
 	lmsummary <- dataset |> lm(formula, data = _, na.action = 'na.exclude') |> summary()
