@@ -68,6 +68,9 @@ compute_lm <- function(dataset, resp_name, pred_name, significance_threshold = 0
 	vector_pvalues <- lmcoeffs[-1, 'Pr(>|t|)']
 	min_pvalue <- min(vector_pvalues) |> signif(digits = 1)
 	lmestimates <- lmcoeffs[, 'Estimate']
+	## CHEKC IF FITTED WITH PREDICTORS THAT DO NOT VARY, BY MAKING SURE THE LMESTIMATES HAVE MORE THAN JUST THE INTERCEPT
+	if(length(lmestimates) < 2) return(NULL)
+	## RENAME THE NON-INTERCEPT ESTIMATE AS SLOPE
 	names(lmestimates)[2] <- 'slope'
 	addee_vector <- c('response' = resp_name, 'predictor' = pred_name, 'min_pvalue' = min_pvalue, 'rsqr' = lmr, 'adjr' = lmadjr, lmestimates, vector_pvalues)
 	## CHECH IF IS SIGNIFICAT, THEN ADD TO LISTN AND RETURN PVAL
