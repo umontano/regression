@@ -29,7 +29,8 @@ packages <- c(
 'tidytext',
 'dplyr',
 'tibble',
-'ggbeeswarm'
+'ggbeeswarm',
+'readr'
 )
 lapply(packages, \(x) if (!require(x, character.only = TRUE)) { install.packages(x)
 	library(x, character.only = TRUE) })
