@@ -35,7 +35,9 @@ packages <- c(
 lapply(packages, \(x) if (!require(x, character.only = TRUE)) { install.packages(x)
 	library(x, character.only = TRUE) })
 
-## globasl themes and color scales
+## GLOBASL THEMES AND COLOR SCALES
+library('ggplot2')
+library('ggthemes')
 theme_set(theme_economist(
        base_size = 10,
        base_family = 'sans',
